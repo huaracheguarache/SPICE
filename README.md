@@ -1,6 +1,6 @@
 # SPICE
 
-The fetch_spice.py script allows you to download SPICE data and save it as a netCDF file. In order to run the script you must have installed the nessecary dependencies. A environment.yml file is provided to make this easy. The following is an example of how the script can be run from the command line:
+The fetch_spice.py script allows you to download SPICE data and save it as a netCDF file. In order to run the script you must have installed the necessary dependencies. A environment.yml file is provided to make this easy. The following is an example of how the script can be run from the command line:
 
 `python fetch_spice.py SPICE38 2023-09-01T00:00:00Z 2023-09-30T23:59:59Z test.nc`
 

@@ -47,6 +47,7 @@ def main(spice, start_ts, end_ts, filename):
         except KeyError:
             pass
         else:
+            # Replace any null values with _FillValue if it exists.
             data_arrays[variable] = data_arrays[variable].where(data_arrays[variable].notnull(), _FillValue)
             data_arrays[variable].attrs['_FillValue'] = _FillValue
 

@@ -1,15 +1,25 @@
 import requests
 import json
+from json.decoder import JSONDecodeError
 import numpy as np
 import xarray as xr
 import datetime
 import argparse
+import sys
 
 
 def main(spice, start_ts, end_ts, filename):
     response = requests.get(f'https://publikacje.inoz.us.edu.pl/SPICE/metno.php?spice={spice}&startTs={start_ts}&'
                             f'endTs={end_ts}&meta=yes&spiceID=yes&time=no')
-    json_data = json.loads(response.text)
+
+    try:
+        json_data = json.loads(response.text)
+    except JSONDecodeError:
+        if response.text == '0 results':
+            print(f'{spice} does not have any data for the provided date range {start_ts}-{end_ts}!')
+            sys.exit(0)
+        else:
+            raise
 
     variables = ('surface_snow_thickness', 'air_temperature', 'relative_humidity', 'air_pressure')
     long_names = {'surface_snow_thickness': 'snow thickness measured at station',

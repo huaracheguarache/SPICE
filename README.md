@@ -7,16 +7,17 @@ The fetch_spice.py script allows you to download SPICE data and save it as a net
 Running the script with the -h flag shows what all of the different parameters are:
 ```
 python fetch_spice.py -h
-usage: fetch_spice.py [-h] spice start_ts end_ts path
+usage: fetch_spice.py [-h] {SPICE34,SPICE35,SPICE36,SPICE37,SPICE38} start_ts end_ts path
 
 Download and save SPICE data.
 
 positional arguments:
-  spice       SPICE station code. Can be SPICE34, SPICE35, SPICE36, SPICE37 or SPICE38.
-  start_ts    Start time in UTC (YYYY-MM-DDTHH:MM:SSZ).
-  end_ts      End time in UTC (YYYY-MM-DDTHH:MM:SSZ).
-  path        Path (including filename) to where netCDF file will be saved.
+  {SPICE34,SPICE35,SPICE36,SPICE37,SPICE38}
+                        SPICE station code. Can be SPICE34, SPICE35, SPICE36, SPICE37 or SPICE38.
+  start_ts              Start time in UTC (YYYY-MM-DDTHH:MM:SSZ).
+  end_ts                End time in UTC (YYYY-MM-DDTHH:MM:SSZ).
+  path                  Path (including filename) to where netCDF file will be saved.
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
 ```

@@ -48,25 +48,27 @@ def main(spice, start_ts, end_ts, filename):
     ds = xr.Dataset(data_vars=data_arrays)
     ds['time'].attrs = {'standard_name': 'time', 'long_name': 'time of observation'}
 
-    # Find weighted averages of latitude and longitude (use reported CEP for weighting).
-    latitude = np.array([item['v'] for item in json_data['IridiumLatitude']], dtype=float)
-    longitude = np.array([item['v'] for item in json_data['IridiumLongitude']], dtype=float)
-    cep = np.array([item['v'] for item in json_data['IridiumCEP']], dtype=float)
+    # Positions of the stations. SPICE37 is currently not set up, so it has -999 as a placeholder for lat, lon.
+    stored_positions = {'SPICE34': (77.08636, 15.62725),
+                        'SPICE35': (77.06198, 15.20614),
+                        'SPICE36': (78.6765, 12.0399),
+                        'SPICE37': (-999, -999),
+                        'SPICE38': (77.51715, 14.39992)}
 
-    cep_weights = (1 / (1 / cep).sum()) * (1 / cep)
-    # Round lat/lon to two decimals.
-    weighted_mean_latitude = np.round((cep_weights * latitude).sum(), 2)
-    weighted_mean_longitude = np.round((cep_weights * longitude).sum(), 2)
+    lat = stored_positions[spice][0]
+    lon = stored_positions[spice][1]
 
-    ds = ds.assign(lat=weighted_mean_latitude)
+    ds = ds.assign(lat=lat)
     ds['lat'].attrs = {'units': 'degree_north', 'standard_name': 'latitude'}
 
-    ds = ds.assign(lon=weighted_mean_longitude)
+    ds = ds.assign(lon=lon)
     ds['lon'].attrs = {'units': 'degree_east', 'standard_name': 'longitude'}
 
-    # TODO: attributes must be filled in.
-    ds.attrs = {'title': 'filler',
-                'summary': 'filler',
+    # TODO: check whether attributes are OK.
+    ds.attrs = {'title': f'Measurement data from {spice} station',
+                'summary': ('Data from SPICE stations includes snow depth measurements, surface temperature, '
+                            'relative humidity, and atmospheric pressure. These stations and their data are a part of '
+                            'the CRIOS project.'),
                 'keywords': 'EARTH SCIENCE > CRYOSPHERE > SNOW/ICE > SNOW DEPTH,'
                             'EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > '
                             'AIR TEMPERATURE,'
@@ -74,21 +76,21 @@ def main(spice, start_ts, end_ts, filename):
                             ' RELATIVE HUMIDITY,'
                             'EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > ATMOSPHERIC PRESSURE MEASUREMENTS',
                 'keywords_vocabulary': 'GCMD Science Keywords',
-                'geospatial_lat_min': f'{ds['lat'].values:.2f}',
-                'geospatial_lat_max': f'{ds['lat'].values:.2f}',
-                'geospatial_lon_min': f'{ds['lon'].values:.2f}',
-                'geospatial_lon_max': f'{ds['lon'].values:.2f}',
+                'geospatial_lat_min': str(lat),
+                'geospatial_lat_max': str(lat),
+                'geospatial_lon_min': str(lon),
+                'geospatial_lon_max': str(lon),
                 'time_coverage_start': np.datetime_as_string(ds.time[0], timezone='UTC', unit='s'),
                 'time_coverage_end': np.datetime_as_string(ds.time[-1], timezone='UTC', unit='s'),
                 'Conventions': 'CF-1.11, ACDD-1.3',
                 'history': f'{datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")}, created file.',
                 'date_created': datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                'creator_type': 'filler',
-                'creator_institution': 'filler',
-                'creator_name': 'filler',
-                'creator_email': 'filler',
-                'creator_url': 'filler',
-                'project': 'filler',
+                'creator_type': 'person',
+                'creator_institution': 'University of Silesia',
+                'creator_name': 'Łukasz Małarzewski',
+                'creator_email': 'lukasz.malarzewski@us.edu.pl',
+                'creator_url': 'https://us.edu.pl/instytut/inoz/en/osoby/malarzewski-lukasz/',
+                'project': 'CRIOS',
                 'license': 'https://spdx.org/licenses/CC-BY-4.0 (CC-BY-4.0)',
                 'iso_topic_category': 'climatologyMeteorologyAtmosphere',
                 'activity_type': 'In Situ Land-based station',
@@ -112,6 +114,7 @@ def main(spice, start_ts, end_ts, filename):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download and save SPICE data.')
     parser.add_argument('spice',
+                        choices=('SPICE34', 'SPICE35', 'SPICE36', 'SPICE37', 'SPICE38'),
                         help='SPICE station code. Can be SPICE34, SPICE35, SPICE36, SPICE37 or SPICE38.')
     parser.add_argument('start_ts',
                         help='Start time in UTC (YYYY-MM-DDTHH:MM:SSZ).')

@@ -42,8 +42,13 @@ def main(spice, start_ts, end_ts, filename):
                                                         units=json_data['metadata'][variable]['v']['units'],
                                                         coverage_content_type='physicalMeasurement'))
 
-        _FillValue = json_data['metadata'][variable]['v']['_FillValue']
-        data_arrays[variable].attrs['_FillValue'] = _FillValue
+        try:
+            _FillValue = json_data['metadata'][variable]['v']['_FillValue']
+        except KeyError:
+            pass
+        else:
+            data_arrays[variable] = data_arrays[variable].where(data_arrays[variable].notnull(), _FillValue)
+            data_arrays[variable].attrs['_FillValue'] = _FillValue
 
     ds = xr.Dataset(data_vars=data_arrays)
     ds['time'].attrs = {'standard_name': 'time', 'long_name': 'time of observation'}
